@@ -2621,6 +2621,7 @@
               <button id="unlockAllStages" title="Unlock all stages for testing" aria-label="Unlock all stages">🔓 Unlock All</button>
               <button id="audioManagerBtn" title="Manage custom audio files" aria-label="Audio Manager">🎵 Audio Manager</button>
               <button id="activateMobileAppAudio" title="Activate audio in mobile app" aria-label="Activate Mobile App Audio" onclick="activateMobileAppAudio()">📲 Activate App Audio</button>
+              <button id="testAPKAudio" title="Test audio in APK/Android" aria-label="Test APK Audio" onclick="testAPKAudio()">🔊 Test APK Audio</button>
               <button id="resetProgress" class="ghost" title="Reset saved progress" aria-label="Reset all progress">🔄 Reset Progress</button>
             </div>
           </div>
@@ -3253,6 +3254,56 @@
       }
     }
     
+    // Alternative audio method for APK/Android
+    function tryAlternativeAudio(text) {
+      // Method 1: Try with different voice settings
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.volume = 1.0;
+        utterance.rate = 0.6;
+        utterance.pitch = 1.0;
+        utterance.lang = 'en-US';
+        
+        // Try to get available voices
+        const voices = speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          utterance.voice = voices[0];
+        }
+        
+        utterance.onstart = () => {
+          console.log('Alternative audio started');
+        };
+        
+        utterance.onerror = (event) => {
+          console.error('Alternative audio failed:', event);
+          // Try fallback method
+          tryFallbackAudio(text);
+        };
+        
+        speechSynthesis.speak(utterance);
+        return true;
+      }
+      return false;
+    }
+    
+    // Fallback audio method
+    function tryFallbackAudio(text) {
+      // Method 2: Try with minimal settings
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.volume = 0.5;
+        utterance.rate = 0.5;
+        utterance.pitch = 0.8;
+        
+        utterance.onerror = (event) => {
+          console.error('Fallback audio failed:', event);
+          showNotification('❌ Audio not available. Please check device settings.', 'error');
+        };
+        
+        speechSynthesis.speak(utterance);
+      }
+    }
+    
     // Function to enable audio on mobile devices
     function enableMobileAudio() {
       // Force enable sound preferences
@@ -3448,6 +3499,71 @@
       }
       
       saveState();
+    }
+    
+    // Enhanced APK audio test function
+    function testAPKAudio() {
+      showNotification('🔊 Testing APK audio system...', 'info');
+      
+      // Test 1: Basic speech synthesis
+      if ('speechSynthesis' in window) {
+        const utterance1 = new SpeechSynthesisUtterance('APK audio test one.');
+        utterance1.volume = 1.0;
+        utterance1.rate = 0.7;
+        utterance1.lang = 'en-US';
+        
+        utterance1.onstart = () => {
+          showNotification('✅ APK audio is working!', 'success');
+        };
+        
+        utterance1.onerror = (event) => {
+          console.error('APK audio failed:', event);
+          showNotification(`❌ APK audio failed: ${event.error}`, 'error');
+          
+          // Try alternative method
+          setTimeout(() => {
+            tryAlternativeAudio('Alternative APK audio test.');
+          }, 1000);
+        };
+        
+        speechSynthesis.speak(utterance1);
+        
+        // Test 2: Arabic text
+        setTimeout(() => {
+          const utterance2 = new SpeechSynthesisUtterance('مرحبا! الصوت يعمل في APK.');
+          utterance2.volume = 0.8;
+          utterance2.rate = 0.6;
+          utterance2.lang = 'ar-SA';
+          
+          utterance2.onstart = () => {
+            showNotification('✅ Arabic audio is working in APK!', 'success');
+          };
+          
+          utterance2.onerror = (event) => {
+            console.error('Arabic APK audio failed:', event);
+            showNotification('❌ Arabic audio failed in APK', 'error');
+          };
+          
+          speechSynthesis.speak(utterance2);
+        }, 2000);
+        
+        // Test 3: Letter pronunciation
+        setTimeout(() => {
+          const utterance3 = new SpeechSynthesisUtterance('A for Apple');
+          utterance3.volume = 0.9;
+          utterance3.rate = 0.8;
+          utterance3.lang = 'en-US';
+          
+          utterance3.onstart = () => {
+            showNotification('✅ Letter pronunciation working!', 'success');
+          };
+          
+          speechSynthesis.speak(utterance3);
+        }, 4000);
+        
+      } else {
+        showNotification('❌ Speech synthesis not available in this APK.', 'error');
+      }
     }
 
     // Enhanced speak function with custom audio support
@@ -3749,10 +3865,13 @@
           }
         } catch (error) {
           console.error('Error speaking:', error);
-          if (isArabic) {
-            tryArabicFallback(text);
-          } else {
-            showNotification('❌ Speech synthesis failed. Try enabling mobile audio.', 'error');
+          // Try alternative audio methods
+          if (!tryAlternativeAudio(text)) {
+            if (isArabic) {
+              tryArabicFallback(text);
+            } else {
+              showNotification('❌ Speech synthesis failed. Try enabling mobile audio.', 'error');
+            }
           }
         }
       } else {
