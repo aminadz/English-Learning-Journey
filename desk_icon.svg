@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Desk base -->
+  <rect x="10" y="60" width="80" height="8" fill="#8B4513" stroke="#654321" stroke-width="1"/>
+  
+  <!-- Desk drawers -->
+  <rect x="70" y="40" width="20" height="28" fill="#8B4513" stroke="#654321" stroke-width="1"/>
+  <rect x="72" y="42" width="16" height="2" fill="#654321"/>
+  <rect x="72" y="46" width="16" height="2" fill="#654321"/>
+  <rect x="72" y="50" width="16" height="2" fill="#654321"/>
+  <rect x="72" y="54" width="16" height="2" fill="#654321"/>
+  <rect x="72" y="58" width="16" height="2" fill="#654321"/>
+  
+  <!-- Monitor -->
+  <rect x="25" y="25" width="35" height="25" fill="#D3D3D3" stroke="#A9A9A9" stroke-width="1"/>
+  <rect x="27" y="27" width="31" height="21" fill="#4A90E2"/>
+  
+  <!-- Monitor stand -->
+  <rect x="40" y="50" width="5" height="10" fill="#D3D3D3" stroke="#A9A9A9" stroke-width="1"/>
+  
+  <!-- Books -->
+  <rect x="15" y="35" width="8" height="12" fill="#4169E1"/>
+  <rect x="16" y="36" width="6" height="10" fill="#1E90FF"/>
+  
+  <rect x="15" y="30" width="8" height="12" fill="#FF8C00"/>
+  <rect x="16" y="31" width="6" height="10" fill="#FFA500"/>
+  
+  <!-- Mouse -->
+  <ellipse cx="65" cy="55" rx="4" ry="2.5" fill="#D3D3D3" stroke="#A9A9A9" stroke-width="1"/>
+  <ellipse cx="65" cy="55" rx="3" ry="2" fill="#C0C0C0"/>
+</svg>

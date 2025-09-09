@@ -1,0 +1,22 @@
+# English Alphabet Learning Platform - Required Dependencies
+# منصة تعلم الأبجدية الإنجليزية - المكتبات المطلوبة
+
+# GUI Framework
+tkinter  # Usually comes with Python
+
+# Audio and Sound
+pygame>=2.0.0
+pyttsx3>=2.90
+
+# Data handling
+json  # Built-in module
+
+# System utilities
+os  # Built-in module
+threading  # Built-in module
+time  # Built-in module
+datetime  # Built-in module
+random  # Built-in module
+
+# Optional: For better audio quality
+# pyaudio  # Uncomment if you want better audio support
