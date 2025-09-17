@@ -18,7 +18,8 @@
   <meta name="theme-color" content="#4a90e2" />
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔤</text></svg>" />
   <link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;English Learning Journey&quot;,&quot;short_name&quot;:&quot;EnglishJourney&quot;,&quot;start_url&quot;:&quot;.&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#f7fbff&quot;,&quot;theme_color&quot;:&quot;#4a90e2&quot;}" />
-  <!-- Mobile Audio Support - دعم الصوت للجوال -->
+  <!-- Audio Libraries - مكتبات الصوت -->
+  <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
   <script src="audio_files/mobile_audio.js"></script>
   <style>
     :root{
@@ -2601,6 +2602,9 @@
             <input type="checkbox" id="soundCheckbox" checked aria-describedby="soundHelp">
             <span>🔊</span>
           </label>
+          <button id="enableAudioBtn" onclick="enableAudioForWebView()" style="background:var(--success);color:white;border:none;padding:8px 12px;border-radius:6px;font-size:0.9rem;cursor:pointer;">
+            🎵 Enable Audio
+          </button>
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
             <input type="checkbox" id="highContrastCheckbox" aria-describedby="contrastHelp">
             <span>♿</span>
@@ -2623,6 +2627,7 @@
               <button id="unlockAllStages" title="Unlock all stages for testing" aria-label="Unlock all stages">🔓 Unlock All</button>
               <button id="audioManagerBtn" title="Manage custom audio files" aria-label="Audio Manager">🎵 Audio Manager</button>
               <button id="testMobileAudio" title="Test mobile audio files" aria-label="Test Mobile Audio" onclick="testMobileAudioFiles()">🎧 Test Mobile Audio</button>
+              <button id="webViewInfo" title="Check WebView environment" aria-label="WebView Info" onclick="showWebViewInfo()">🔍 WebView Info</button>
               <button id="activateMobileAppAudio" title="Activate audio in mobile app" aria-label="Activate Mobile App Audio" onclick="activateMobileAppAudio()">📲 Activate App Audio</button>
               <button id="testAPKAudio" title="Test audio in APK/Android" aria-label="Test APK Audio" onclick="testAPKAudio()">🔊 Test APK Audio</button>
               <button id="resetProgress" class="ghost" title="Reset saved progress" aria-label="Reset all progress">🔄 Reset Progress</button>
@@ -3448,6 +3453,78 @@
       }
     }
 
+    // Function to enable audio for WebView (AppsGeyser compatibility)
+    function enableAudioForWebView() {
+      showNotification('🎵 Initializing audio for WebView...', 'info');
+      
+      // Initialize audio context
+      if (!state.audioContextInitialized) {
+        initializeAudioContext();
+      }
+      
+      // Enable sound preferences
+      state.preferences.soundEnabled = true;
+      const soundCheckbox = document.getElementById('soundCheckbox');
+      if (soundCheckbox) {
+        soundCheckbox.checked = true;
+      }
+      
+      // Test Howler.js availability
+      if (typeof Howl !== 'undefined') {
+        showNotification('✅ Howler.js loaded successfully!', 'success');
+        
+        // Test audio file loading
+        setTimeout(() => {
+          testAudioFileLoading();
+        }, 500);
+      } else {
+        showNotification('⚠️ Howler.js not loaded. Using fallback methods.', 'warning');
+        
+        // Test TTS availability
+        setTimeout(() => {
+          testTTSAvailability();
+        }, 500);
+      }
+    }
+    
+    // Test audio file loading
+    function testAudioFileLoading() {
+      const testSound = new Howl({
+        src: ['assets/sounds/A.mp3'],
+        onload: () => {
+          showNotification('✅ Audio files can be loaded from assets/sounds/', 'success');
+          testSound.play();
+        },
+        onloaderror: (id, error) => {
+          showNotification('❌ Cannot load audio files from assets/sounds/. Check file paths.', 'error');
+          console.error('Audio loading error:', error);
+          
+          // Show instructions for fixing
+          showNotification('💡 Make sure audio files are in assets/sounds/ folder', 'info');
+        },
+        onplayerror: (id, error) => {
+          showNotification('❌ Cannot play audio files. Check WebView audio permissions.', 'error');
+          console.error('Audio playback error:', error);
+        }
+      });
+    }
+    
+    // Test TTS availability
+    function testTTSAvailability() {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance('Audio test');
+        utterance.onstart = () => {
+          showNotification('✅ Text-to-Speech is working!', 'success');
+        };
+        utterance.onerror = (event) => {
+          showNotification('❌ Text-to-Speech failed: ' + event.error, 'error');
+        };
+        speechSynthesis.speak(utterance);
+      } else {
+        showNotification('❌ Text-to-Speech not supported in this WebView', 'error');
+      }
+    }
+
     // Function to test mobile audio files
     function testMobileAudioFiles() {
       if (typeof playMobileAudio !== 'function') {
@@ -3495,6 +3572,42 @@
           showNotification(`📊 Mobile audio test completed! Found ${totalFiles} audio files.`, 'info');
         }
       }, 3500);
+    }
+
+    // Function to detect WebView environment
+    function detectWebViewEnvironment() {
+      const isWebView = /WebView|wv|Android.*Version\/\d+\.\d+|iPhone.*AppleWebKit(?!.*Safari)/i.test(navigator.userAgent);
+      const isAppsGeyser = /AppsGeyser/i.test(navigator.userAgent) || window.location.href.includes('appsgeyser');
+      
+      return {
+        isWebView: isWebView,
+        isAppsGeyser: isAppsGeyser,
+        userAgent: navigator.userAgent,
+        hasAudioContext: 'AudioContext' in window || 'webkitAudioContext' in window,
+        hasHowler: typeof Howl !== 'undefined',
+        hasSpeechSynthesis: 'speechSynthesis' in window
+      };
+    }
+    
+    // Function to show WebView compatibility info
+    function showWebViewInfo() {
+      const env = detectWebViewEnvironment();
+      
+      let message = '🔍 WebView Environment Detection:\n\n';
+      message += `WebView: ${env.isWebView ? '✅ Yes' : '❌ No'}\n`;
+      message += `AppsGeyser: ${env.isAppsGeyser ? '✅ Yes' : '❌ No'}\n`;
+      message += `AudioContext: ${env.hasAudioContext ? '✅ Yes' : '❌ No'}\n`;
+      message += `Howler.js: ${env.hasHowler ? '✅ Yes' : '❌ No'}\n`;
+      message += `SpeechSynthesis: ${env.hasSpeechSynthesis ? '✅ Yes' : '❌ No'}\n\n`;
+      
+      if (env.isWebView) {
+        message += '📱 WebView detected! Audio may need special handling.\n';
+        message += '💡 Try clicking "🎵 Enable Audio" button first.';
+      } else {
+        message += '🌐 Regular browser detected. Audio should work normally.';
+      }
+      
+      alert(message);
     }
 
     // Function specifically for mobile app audio activation
@@ -3823,7 +3936,38 @@
         return;
       }
       
-      // Try to use mobile audio files first (for mobile apps)
+      // Try to use Howler.js with MP3 files first (for WebView compatibility)
+      if (typeof Howl !== 'undefined') {
+        try {
+          const audioFile = getAudioFilePath(text);
+          if (audioFile) {
+            const sound = new Howl({
+              src: [audioFile],
+              volume: opts.volume || 1,
+              onload: () => {
+                console.log('Audio file loaded successfully:', audioFile);
+              },
+              onloaderror: (id, error) => {
+                console.warn('Failed to load audio file:', audioFile, error);
+                // Fallback to mobile audio or TTS
+                fallbackToMobileAudioOrTTS(text, opts);
+              },
+              onplayerror: (id, error) => {
+                console.warn('Failed to play audio file:', audioFile, error);
+                // Fallback to mobile audio or TTS
+                fallbackToMobileAudioOrTTS(text, opts);
+              }
+            });
+            
+            sound.play();
+            return; // Successfully played audio file
+          }
+        } catch (e) {
+          console.warn('Howler.js failed, falling back:', e);
+        }
+      }
+      
+      // Try to use mobile audio files (for mobile apps)
       if (typeof playMobileAudio === 'function') {
         // Determine audio type based on text content
         let audioType = 'letters';
@@ -3842,12 +3986,35 @@
         }
       }
       
+      // Fallback to TTS
+      fallbackToMobileAudioOrTTS(text, opts);
+    }
+    
+    // Helper function to get audio file path
+    function getAudioFilePath(text) {
+      // Clean text for filename
+      const cleanText = text.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+      
+      // Try different possible paths for GitHub hosting
+      const possiblePaths = [
+        `assets/sounds/${cleanText}.mp3`,
+        `https://raw.githubusercontent.com/username/repo/main/assets/sounds/${cleanText}.mp3`,
+        `./assets/sounds/${cleanText}.mp3`,
+        `sounds/${cleanText}.mp3`
+      ];
+      
+      // For now, return the first path (you can modify this based on your actual GitHub repo)
+      return possiblePaths[0];
+    }
+    
+    // Fallback function for mobile audio or TTS
+    function fallbackToMobileAudioOrTTS(text, opts) {
       // Mobile audio context activation - required for mobile devices
       if (!state.audioContextInitialized) {
         initializeAudioContext();
         // Wait a bit for initialization
         setTimeout(() => {
-          speak(text, opts);
+          fallbackToMobileAudioOrTTS(text, opts);
         }, 200);
         return;
       }
@@ -3855,7 +4022,7 @@
       // Resume audio context if suspended (mobile requirement)
       if (state.audioContext && state.audioContext.state === 'suspended') {
         state.audioContext.resume().then(() => {
-          speak(text, opts);
+          fallbackToMobileAudioOrTTS(text, opts);
         });
         return;
       }
@@ -7739,6 +7906,15 @@
     // Start the application when DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
       initialize();
+      
+      // Initialize WebView environment detection
+      setTimeout(() => {
+        const env = detectWebViewEnvironment();
+        if (env.isWebView) {
+          console.log('WebView environment detected:', env);
+          showNotification('📱 WebView detected! Click "🎵 Enable Audio" if sound doesn\'t work.', 'info');
+        }
+      }, 1000);
       
       // Auto-enable mobile audio on first user interaction
       const enableAudioOnInteraction = () => {

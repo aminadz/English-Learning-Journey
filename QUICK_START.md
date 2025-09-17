@@ -1,94 +1,55 @@
-# Quick Start Guide - دليل البدء السريع
+# Quick Start Guide / دليل البدء السريع
 
-## What I've Done - ما تم عمله
+## For Windows Users / لمستخدمي Windows
 
-✅ **Analyzed the web app** - تم تحليل تطبيق الويب
-- Found that it uses Text-to-Speech (TTS) which works in browsers but not in mobile WebView apps
-- اكتشفت أنه يستخدم تحويل النص إلى كلام (TTS) الذي يعمل في المتصفحات لكن ليس في تطبيقات WebView للجوال
+### Option 1: Double-click to run / الخيار الأول: انقر مرتين للتشغيل
+1. Double-click `run_app.bat`
+2. The script will automatically install dependencies and run the app
 
-✅ **Created audio files** - تم إنشاء الملفات الصوتية
-- `mobile_audio.js` - Contains all audio files in base64 format
-- `audio_extractor.html` - Interactive tool to test and download audio files
-- `README.md` - Complete documentation
+### Option 2: PowerShell / الخيار الثاني: PowerShell
+1. Right-click on `run_app.ps1`
+2. Select "Run with PowerShell"
+3. Follow the prompts
 
-✅ **Updated the main app** - تم تحديث التطبيق الرئيسي
-- Added mobile audio support to `index.html`
-- Modified the `speak()` function to use audio files first, then fallback to TTS
-- Added `playSoundEffect()` function for sound effects
-- Added test button "🎧 Test Mobile Audio"
+### Option 3: Manual / الخيار الثالث: يدوي
+1. Open Command Prompt
+2. Navigate to the project folder
+3. Run: `python english_alphabet_learning_platform.py`
 
-## How to Use - كيفية الاستخدام
+## For Linux/macOS Users / لمستخدمي Linux/macOS
 
-### For Mobile App - للتطبيق الجوال
+### Option 1: Shell script / الخيار الأول: سكريبت Shell
+1. Open Terminal
+2. Navigate to the project folder
+3. Run: `./run_app.sh`
 
-1. **Copy the audio file:**
-   ```
-   Copy audio_files/mobile_audio.js to your mobile app
-   ```
+### Option 2: Manual / الخيار الثاني: يدوي
+1. Open Terminal
+2. Navigate to the project folder
+3. Run: `python3 english_alphabet_learning_platform.py`
 
-2. **Include in your app:**
-   ```html
-   <script src="mobile_audio.js"></script>
-   ```
+## For Web Users / لمستخدمي الويب
 
-3. **Use the functions:**
-   ```javascript
-   // Play letter audio
-   playMobileAudio('letters', 'A');
-   
-   // Play word audio  
-   playMobileAudio('words', 'Apple');
-   
-   // Play sound effect
-   playMobileAudio('sounds', 'Correct');
-   ```
+1. Open `English Alphabet Platform Prototype.html` in your web browser
+2. No installation required!
 
-### For Web App - لتطبيق الويب
+## Troubleshooting / حل المشاكل
 
-1. **The app is already updated!** - التطبيق محدث بالفعل!
-2. **Test the audio:** - اختبر الصوت
-   - Click "⚙️ More" button
-   - Click "🎧 Test Mobile Audio" button
-   - You should hear audio files playing
+### Python not found / Python غير موجود
+- **Windows**: Install from [python.org](https://python.org) or Microsoft Store
+- **Linux**: `sudo apt install python3 python3-pip` (Ubuntu/Debian)
+- **macOS**: `brew install python3` or install from [python.org](https://python.org)
 
-## Files Created - الملفات المنشأة
-
-```
-audio_files/
-├── mobile_audio.js      # Audio files in JavaScript format
-├── audio_extractor.html # Interactive testing tool
-├── README.md           # Complete documentation
-└── QUICK_START.md      # This file
+### Missing packages / مكتبات مفقودة
+```bash
+pip install pygame pyttsx3
 ```
 
-## Testing - الاختبار
+### Audio issues / مشاكل الصوت
+- Check system audio settings
+- Ensure speakers/headphones are connected
+- Try the "Test Sound" button in the app
 
-1. **Open `audio_extractor.html`** in your browser
-2. **Click the play buttons** to test each audio file
-3. **Use the download buttons** to save individual files
-4. **Click "Download All Audio Files"** to get everything
+## Need Help? / تحتاج مساعدة؟
 
-## Troubleshooting - استكشاف الأخطاء
-
-### Audio Not Working - الصوت لا يعمل
-- Check if `mobile_audio.js` is loaded
-- Make sure audio permissions are enabled
-- Try the test button in the main app
-
-### Mobile App Issues - مشاكل تطبيق الجوال
-- Ensure WebView has audio permissions
-- Initialize audio context on user interaction
-- Use the fallback TTS if audio files fail
-
-## Next Steps - الخطوات التالية
-
-1. **Test the audio files** using the test button
-2. **Copy the files** to your mobile app
-3. **Update your mobile app** to use the audio functions
-4. **Test on mobile device** to ensure everything works
-
-## Contact - الاتصال
-
-If you need help: math2020amir@gmail.com
-
-إذا كنت تحتاج مساعدة: math2020amir@gmail.com
+Contact: math2020amir@gmail.com
