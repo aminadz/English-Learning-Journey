@@ -18,6 +18,8 @@
   <meta name="theme-color" content="#4a90e2" />
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔤</text></svg>" />
   <link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;English Learning Journey&quot;,&quot;short_name&quot;:&quot;EnglishJourney&quot;,&quot;start_url&quot;:&quot;.&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#f7fbff&quot;,&quot;theme_color&quot;:&quot;#4a90e2&quot;}" />
+  <!-- Mobile Audio Support - دعم الصوت للجوال -->
+  <script src="audio_files/mobile_audio.js"></script>
   <style>
     :root{
       --bg:#f8fafc; --card:#fefefe; --accent:#4a90e2; --muted:#6b7280; --success:#10b981;
@@ -2620,6 +2622,7 @@
             <div class="advanced-menu-content" id="advancedMenu">
               <button id="unlockAllStages" title="Unlock all stages for testing" aria-label="Unlock all stages">🔓 Unlock All</button>
               <button id="audioManagerBtn" title="Manage custom audio files" aria-label="Audio Manager">🎵 Audio Manager</button>
+              <button id="testMobileAudio" title="Test mobile audio files" aria-label="Test Mobile Audio" onclick="testMobileAudioFiles()">🎧 Test Mobile Audio</button>
               <button id="activateMobileAppAudio" title="Activate audio in mobile app" aria-label="Activate Mobile App Audio" onclick="activateMobileAppAudio()">📲 Activate App Audio</button>
               <button id="testAPKAudio" title="Test audio in APK/Android" aria-label="Test APK Audio" onclick="testAPKAudio()">🔊 Test APK Audio</button>
               <button id="resetProgress" class="ghost" title="Reset saved progress" aria-label="Reset all progress">🔄 Reset Progress</button>
@@ -3445,6 +3448,55 @@
       }
     }
 
+    // Function to test mobile audio files
+    function testMobileAudioFiles() {
+      if (typeof playMobileAudio !== 'function') {
+        showNotification('❌ Mobile audio files not loaded. Please check audio_files/mobile_audio.js', 'error');
+        return;
+      }
+      
+      showNotification('🎧 Testing mobile audio files...', 'info');
+      
+      // Test letters
+      setTimeout(() => {
+        if (typeof hasAudioFile === 'function' && hasAudioFile('letters', 'A')) {
+          playMobileAudio('letters', 'A');
+          showNotification('✅ Letter A audio played successfully!', 'success');
+        } else {
+          showNotification('❌ Letter A audio not found', 'error');
+        }
+      }, 500);
+      
+      // Test words
+      setTimeout(() => {
+        if (typeof hasAudioFile === 'function' && hasAudioFile('words', 'Apple')) {
+          playMobileAudio('words', 'Apple');
+          showNotification('✅ Word "Apple" audio played successfully!', 'success');
+        } else {
+          showNotification('❌ Word "Apple" audio not found', 'error');
+        }
+      }, 1500);
+      
+      // Test sound effects
+      setTimeout(() => {
+        if (typeof hasAudioFile === 'function' && hasAudioFile('sounds', 'Correct')) {
+          playMobileAudio('sounds', 'Correct');
+          showNotification('✅ Sound effect "Correct" played successfully!', 'success');
+        } else {
+          showNotification('❌ Sound effect "Correct" not found', 'error');
+        }
+      }, 2500);
+      
+      // Show summary
+      setTimeout(() => {
+        if (typeof getAllAudioFiles === 'function') {
+          const allAudio = getAllAudioFiles();
+          const totalFiles = allAudio.letters.length + allAudio.words.length + allAudio.sounds.length;
+          showNotification(`📊 Mobile audio test completed! Found ${totalFiles} audio files.`, 'info');
+        }
+      }, 3500);
+    }
+
     // Function specifically for mobile app audio activation
     function activateMobileAppAudio() {
       const isMobileApp = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
@@ -3771,6 +3823,25 @@
         return;
       }
       
+      // Try to use mobile audio files first (for mobile apps)
+      if (typeof playMobileAudio === 'function') {
+        // Determine audio type based on text content
+        let audioType = 'letters';
+        if (text.length > 1 && !/^[A-Z]$/.test(text)) {
+          audioType = 'words';
+        }
+        
+        // Check if audio file exists
+        if (typeof hasAudioFile === 'function' && hasAudioFile(audioType, text)) {
+          try {
+            playMobileAudio(audioType, text);
+            return; // Successfully played audio file
+          } catch (e) {
+            console.warn('Mobile audio failed, falling back to TTS:', e);
+          }
+        }
+      }
+      
       // Mobile audio context activation - required for mobile devices
       if (!state.audioContextInitialized) {
         initializeAudioContext();
@@ -3935,6 +4006,39 @@
           resolve();
         }
       });
+    }
+    
+    // Function to play sound effects
+    function playSoundEffect(effectName) {
+      // Try to use mobile audio files first
+      if (typeof playMobileAudio === 'function' && typeof hasAudioFile === 'function') {
+        if (hasAudioFile('sounds', effectName)) {
+          try {
+            playMobileAudio('sounds', effectName);
+            return;
+          } catch (e) {
+            console.warn('Mobile sound effect failed:', e);
+          }
+        }
+      }
+      
+      // Fallback to TTS for sound effects
+      if ('speechSynthesis' in window) {
+        const soundTexts = {
+          'Correct': 'Correct!',
+          'Wrong': 'Try again',
+          'Success': 'Well done!',
+          'LevelUp': 'Level up!',
+          'Click': 'Click'
+        };
+        
+        const text = soundTexts[effectName] || effectName;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.2;
+        utterance.pitch = 1.1;
+        utterance.volume = 0.8;
+        speechSynthesis.speak(utterance);
+      }
     }
 
 

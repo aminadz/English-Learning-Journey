@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Files Extractor - مستخرج الملفات الصوتية</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .audio-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .audio-item {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            text-align: center;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .download-btn {
+            background: #28a745;
+        }
+        .download-btn:hover {
+            background: #1e7e34;
+        }
+        audio {
+            width: 200px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔊 Audio Files Extractor - مستخرج الملفات الصوتية</h1>
+        <p>This tool extracts audio files from the web app for mobile app usage.</p>
+        <p>هذا الأداة تستخرج الملفات الصوتية من تطبيق الويب لاستخدامها في تطبيق الجوال.</p>
+
+        <div class="audio-section">
+            <h2>📝 English Letters - الحروف الإنجليزية</h2>
+            <div id="letters-container"></div>
+        </div>
+
+        <div class="audio-section">
+            <h2>📚 Basic Words - الكلمات الأساسية</h2>
+            <div id="words-container"></div>
+        </div>
+
+        <div class="audio-section">
+            <h2>🎵 Sound Effects - المؤثرات الصوتية</h2>
+            <div id="sounds-container"></div>
+        </div>
+
+        <div class="audio-section">
+            <h2>📥 Download All Audio Files - تحميل جميع الملفات الصوتية</h2>
+            <button class="download-btn" onclick="downloadAllAudio()">📥 Download All Audio Files</button>
+            <button onclick="generateAudioScript()">📄 Generate Audio Script</button>
+        </div>
+    </div>
+
+    <script>
+        // Audio data for English letters
+        const lettersAudio = {
+            'A': 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT',
+            'B': 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT',
+            'C': 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT'
+        };
+
+        // Audio data for basic words
+        const wordsAudio = {
+            'Apple': 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT',
+            'Ball': 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT',
+            'Cat': 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT'
+        };
+
+        // Audio data for sound effects
+        const soundsAudio = {
+            'Correct': 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT',
+            'Wrong': 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT',
+            'Click': 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT'
+        };
+
+        function createAudioElement(name, audioData, containerId) {
+            const container = document.getElementById(containerId);
+            const audioItem = document.createElement('div');
+            audioItem.className = 'audio-item';
+            
+            audioItem.innerHTML = `
+                <h4>${name}</h4>
+                <audio controls>
+                    <source src="${audioData}" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+                <br>
+                <button onclick="playAudio('${audioData}')">▶️ Play</button>
+                <button class="download-btn" onclick="downloadAudio('${name}', '${audioData}')">📥 Download</button>
+            `;
+            
+            container.appendChild(audioItem);
+        }
+
+        function playAudio(audioData) {
+            const audio = new Audio(audioData);
+            audio.play().catch(e => {
+                console.error('Error playing audio:', e);
+                alert('Error playing audio. Please try again.');
+            });
+        }
+
+        function downloadAudio(name, audioData) {
+            const link = document.createElement('a');
+            link.href = audioData;
+            link.download = `${name}.wav`;
+            link.click();
+        }
+
+        function downloadAllAudio() {
+            // Download letters
+            Object.entries(lettersAudio).forEach(([name, audioData]) => {
+                setTimeout(() => downloadAudio(name, audioData), 100);
+            });
+            
+            // Download words
+            Object.entries(wordsAudio).forEach(([name, audioData]) => {
+                setTimeout(() => downloadAudio(name, audioData), 200);
+            });
+            
+            // Download sounds
+            Object.entries(soundsAudio).forEach(([name, audioData]) => {
+                setTimeout(() => downloadAudio(name, audioData), 300);
+            });
+        }
+
+        function generateAudioScript() {
+            const script = `
+// Audio files for mobile app
+const mobileAudioFiles = {
+    letters: ${JSON.stringify(lettersAudio, null, 2)},
+    words: ${JSON.stringify(wordsAudio, null, 2)},
+    sounds: ${JSON.stringify(soundsAudio, null, 2)}
+};
+
+// Function to play audio in mobile app
+function playMobileAudio(type, name) {
+    const audioData = mobileAudioFiles[type]?.[name];
+    if (audioData) {
+        const audio = new Audio(audioData);
+        audio.play().catch(e => {
+            console.error('Error playing mobile audio:', e);
+        });
+    }
+}
+            `;
+            
+            const blob = new Blob([script], { type: 'text/javascript' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'mobile_audio.js';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create letter audio elements
+            Object.entries(lettersAudio).forEach(([name, audioData]) => {
+                createAudioElement(name, audioData, 'letters-container');
+            });
+            
+            // Create word audio elements
+            Object.entries(wordsAudio).forEach(([name, audioData]) => {
+                createAudioElement(name, audioData, 'words-container');
+            });
+            
+            // Create sound effect elements
+            Object.entries(soundsAudio).forEach(([name, audioData]) => {
+                createAudioElement(name, audioData, 'sounds-container');
+            });
+        });
+    </script>
+</body>
+</html>
